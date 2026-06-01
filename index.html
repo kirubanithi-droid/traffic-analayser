@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="ta">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pro Live Domain Analyzer Hub</title>
+    <title>Pro Domain Analyzer Hub</title>
     <style>
         :root {
             --primary: #8a2be2;
@@ -93,7 +92,6 @@
             padding: 30px;
             border-radius: 15px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            overflow-x: auto;
         }
 
         table {
@@ -138,30 +136,25 @@
             font-family: monospace;
             font-size: 14px;
             box-sizing: border-box;
-            overflow-y: auto;
-            resize: none;
+            overflow-y: scroll;
         }
-        
-        .status-msg {
-            color: var(--secondary);
-            text-align: center;
-            font-weight: bold;
-            display: none;
-        }
+
     </style>
 </head>
 <body>
 
 <div class="header">
-    <h1>PRO LIVE DOMAIN ANALYZER HUB</h1>
-    <p>REAL-TIME API FETCH DATA (ஒரே நேரத்தில் பல டொமைன்களை லைவாக செக் செய்யுங்கள்)</p>
+    <h1>PRO DOMAIN ANALYZER HUB</h1>
+    <p>பல டொமைன்களை ஒரே நேரத்தில் பகுப்பாய்வு செய்யுங்கள் (Analyze multiple domains at once).</p>
 </div>
 
 <div class="main-container">
     <div class="input-panel">
-        <textarea id="domainInput" placeholder="google.com&#10;example.in&#10;github.com&#10;(Enter one domain per line)"></textarea>
-        <button id="btnAnalyze" onclick="analyzeDomains()">Live Bulk Analyze</button>
-        <p id="loadingMsg" class="status-msg">Fetching Real Data... Please wait...</p>
+        <textarea id="domainInput" placeholder="Eg: google.com
+example.in
+yahoo.com
+(Enter one domain per line)"></textarea>
+        <button onclick="analyzeDomains()">Bulk Analyze</button>
     </div>
 
     <div class="results-panel">
@@ -169,128 +162,77 @@
             <thead>
                 <tr>
                     <th>Domain</th>
-                    <th>Est. Monthly Traffic</th>
-                    <th>Global Rank</th>
-                    <th>Total Backlinks</th>
+                    <th>Est. Monthly Visits</th>
+                    <th>Top Source</th>
+                    <th>Backlinks</th>
                     <th>Domain Rating (DR)</th>
                 </tr>
             </thead>
-            <tbody id="resultsBody"></tbody>
+            <tbody id="resultsBody">
+                <!-- Result rows will be inserted here -->
+            </tbody>
         </table>
     </div>
 
     <div class="grab-panel">
-        <h3>உயர்தர டொமைன்கள் (High Quality - DR >= 60)</h3>
+        <h3>உயர்தர டொமைன்கள் (High Quality - DR > 60)</h3>
         <p style="font-size:12px; color:var(--text-muted); text-align:center;">
-            இங்கிருந்து நகலெடுத்து ஒட்டவும் (Copy & Paste from here).
+            இங்கிருந்து நகலெடுத்து ஒட்டவும் (Copy and Paste from here).
         </p>
         <textarea id="grabList" readonly></textarea>
     </div>
 </div>
 
 <script>
-    // ⚠️ IMPORTANT: Ungaloda RapidAPI Key-ai inge paste pannavum!
-    const API_KEY = "YOUR_FREE_API_KEY_HERE"; 
-
-    async function analyzeDomains() {
+    function analyzeDomains() {
         const input = document.getElementById('domainInput').value;
         const domains = input.split('\n').map(d => d.trim()).filter(d => d !== "");
         const resultsBody = document.getElementById('resultsBody');
         const grabList = document.getElementById('grabList');
-        const loadingMsg = document.getElementById('loadingMsg');
 
         if (domains.length === 0) {
             alert("Analyze செய்ய டொமைன் பெயர்களை உள்ளிடவும்.");
             return;
         }
 
-        if (API_KEY === "YOUR_FREE_API_KEY_HERE" || API_KEY.trim() === "") {
-            alert("Vazhikaati! JavaScript code-குள்ள 'YOUR_FREE_API_KEY_HERE' irukura idathula unga RapidAPI Key-ai enter pannunga. Appo dhaan real data fetch aagum!");
-            return; // Stops execution if no key is supplied
-        }
-
-        // Clean UI state before running
+        // Clear previous results
         resultsBody.innerHTML = '';
         grabList.value = '';
-        loadingMsg.style.display = 'block';
-        
         let highDrDomains = [];
 
-        // Map every domain query into an array of active promises running concurrently
-        const apiPromises = domains.map(async (domain) => {
-            try {
-                const url = `https://domain-da-pa-check.p.rapidapi.com/request.php?target=${domain}`;
-                const options = {
-                    method: 'GET',
-                    headers: {
-                        'X-RapidAPI-Key': API_KEY,
-                        'X-RapidAPI-Host': 'domain-da-pa-check.p.rapidapi.com'
-                    }
-                };
+        // Core Logic Note: Real bulk data requires a backend API.
+        // This is a simulation for UI display.
+        domains.forEach((domain, index) => {
+            let seed = domain.length + index;
+            let visits = (seed * 105420).toLocaleString();
+            let sources = ["Organic Search", "Direct Traffic", "Social Media", "Referrals"];
+            let backlinks = (seed * 543).toLocaleString();
+            // Simulate DR: High for short domains, variable for others.
+            let dr = domain.length < 5 ? 80 : (30 + (seed % 45));
 
-                const response = await fetch(url, options);
-                if (!response.ok) throw new Error("Network response error");
-                
-                const data = await response.json();
-
-                // Safe parsing of numbers and string structures
-                let rawRank = data.body?.global_rank;
-                let rank = (rawRank && !isNaN(rawRank)) ? "#" + Number(rawRank).toLocaleString() : "N/A";
-                
-                let rawDr = data.body?.domain_authority;
-                let dr = (rawDr && !isNaN(rawDr)) ? parseInt(rawDr) : 0;
-                
-                let rawBacklinks = data.body?.external_backlinks;
-                let backlinks = (rawBacklinks && !isNaN(rawBacklinks)) ? Number(rawBacklinks).toLocaleString() : "0";
-                
-                let rawTraffic = data.body?.estimated_traffic;
-                let traffic = (rawTraffic && !isNaN(rawTraffic)) ? Number(rawTraffic).toLocaleString() : "N/A";
-
-                return { domain, traffic, rank, backlinks, dr, error: false };
-
-            } catch (error) {
-                console.error(`Error fetching data for ${domain}:`, error);
-                return { domain, error: true };
-            }
-        });
-
-        // Resolve all requests asynchronously at the same time
-        const results = await Promise.all(apiPromises);
-
-        // Inject results into DOM
-        results.forEach(res => {
+            // Populate table
             let row = resultsBody.insertRow();
-            row.insertCell(0).innerText = res.domain;
-
-            if (res.error) {
-                let errorCell = row.insertCell(1);
-                errorCell.innerText = "Error Fetching Real Data";
-                errorCell.colSpan = 4;
-                errorCell.style.color = "var(--accent)";
-            } else {
-                row.insertCell(1).innerText = res.traffic;
-                row.insertCell(2).innerText = res.rank;
-                row.insertCell(3).innerText = res.backlinks;
-                
-                let drCell = row.insertCell(4);
-                drCell.innerText = res.dr;
-
-                if (res.dr >= 60) {
-                    drCell.style.color = 'var(--secondary)';
-                    drCell.style.fontWeight = 'bold';
-                    highDrDomains.push(res.domain);
-                }
+            row.insertCell(0).innerText = domain;
+            row.insertCell(1).innerText = visits;
+            row.insertCell(2).innerText = sources[seed % sources.length];
+            row.insertCell(3).innerText = backlinks;
+            let drCell = row.insertCell(4);
+            drCell.innerText = dr;
+            
+            // Highlight High DR
+            if (dr > 60) {
+                drCell.style.color = 'var(--secondary)';
+                drCell.style.fontWeight = 'bold';
+                highDrDomains.push(domain);
             }
         });
 
-        // Update High Quality Domain filtering section
+        // Update Grab List
         if (highDrDomains.length > 0) {
             grabList.value = highDrDomains.join('\n');
         } else {
-            grabList.value = "DR >= 60 டொமைன்கள் எதுவும் இல்லை.";
+            grabList.value = "DR > 60 டொமைன்கள் எதுவும் இல்லை.";
         }
-
-        loadingMsg.style.display = 'none';
     }
 </script>
 
