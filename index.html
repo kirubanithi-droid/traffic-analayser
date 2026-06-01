@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Third-Party Domain Traffic Analyzer</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            max-width: 600px;
+            width: 100%;
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            outline: none;
+        }
+        input:focus {
+            border-color: #007bff;
+        }
+        button {
+            padding: 12px 24px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .results {
+            display: none;
+            margin-top: 25px;
+            border-top: 2px solid #eee;
+            padding-top: 20px;
+        }
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #f1f1f1;
+        }
+        .metric-name {
+            font-weight: 600;
+            color: #555;
+        }
+        .metric-value {
+            color: #007bff;
+            font-weight: bold;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            font-weight: bold;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Domain Traffic Analyzer</h2>
+    <p style="text-align: center; color: #666; font-size: 14px;">Analyze third-party website estimated traffic data</p>
+    
+    <div class="input-group">
+        <input type="text" id="domainInput" placeholder="Eg: google.com, example.in">
+        <button onclick="analyzeDomain()">Analyze</button>
+    </div>
+
+    <div class="loading" id="loadingText">Analyzing domain database... Please wait...</div>
+
+    <div class="results" id="resultArea">
+        <h3 style="color: #333;" id="displayDomain">Domain: example.com</h3>
+        
+        <div class="metric-row">
+            <span class="metric-name">Estimated Monthly Visits</span>
+            <span class="metric-value" id="monthlyVisits">--</span>
+        </div>
+        <div class="metric-row">
+            <span class="metric-name">Top Traffic Source</span>
+            <span class="metric-value" id="topSource">--</span>
+        </div>
+        <div class="metric-row">
+            <span class="metric-name">Main Audience Location</span>
+            <span class="metric-value" id="topCountry">--</span>
+        </div>
+        <div class="metric-row">
+            <span class="metric-name">Avg. Bounce Rate</span>
+            <span class="metric-value" id="bounceRate">--</span>
+        </div>
+    </div>
+</div>
+
+<script>
+function analyzeDomain() {
+    const domain = document.getElementById('domainInput').value.trim();
+    if (!domain) {
+        alert("Thappu! Modhalla oru domain name enter pannunga.");
+        return;
+    }
+
+    // UI Updates
+    document.getElementById('resultArea').style.display = 'none';
+    document.getElementById('loadingText').style.display = 'block';
+
+    // Core Logic Note: Real-time-la third-party data-ku backend API venum.
+    // Ippo ungaluku puriyaradhukaga dynamic calculation logic (simulation) pottruken.
+    
+    setTimeout(() => {
+        document.getElementById('loadingText').style.display = 'none';
+        document.getElementById('displayDomain').innerText = "Domain: " + domain;
+        
+        // Dynamic simulated values based on domain length/character (Just for UI display)
+        // Irukae unga real project-la inga API fetch request podanum (eg: fetch('api_url'))
+        let seed = domain.length;
+        let estimatedVisits = (seed * 145020).toLocaleString() + "+";
+        let sources = ["Organic Search", "Direct Traffic", "Social Media", "Referrals"];
+        let countries = ["India 🇮🇳", "United States 🇺🇸", "United Kingdom 🇬🇧", "Germany 🇩🇪"];
+        
+        document.getElementById('monthlyVisits').innerText = estimatedVisits;
+        document.getElementById('topSource').innerText = sources[seed % sources.length];
+        document.getElementById('topCountry').innerText = countries[seed % countries.length];
+        document.getElementById('bounceRate').innerText = (40 + (seed % 25)) + "%";
+
+        document.getElementById('resultArea').style.display = 'block';
+    }, 1500); // 1.5 seconds loading delay simulation
+}
+</script>
+
+</body>
+</html>
